@@ -6,9 +6,9 @@ export default function Header() {
           My Blog
         </a>
         <nav className="flex items-center gap-6 text-sm font-medium text-gray-600">
-          <a href="/" className="hover:text-gray-900 transition-colors">
-            ホーム
-          </a>
+          <a href="/" className="hover:text-gray-900 transition-colors">ホーム</a>
+          <a href="/news" className="hover:text-gray-900 transition-colors">お知らせ</a>
+          <a href="/about" className="hover:text-gray-900 transition-colors">About</a>
         </nav>
       </div>
     </header>
