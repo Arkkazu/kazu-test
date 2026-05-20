@@ -1,0 +1,110 @@
+services:
+
+  db:
+    image: mariadb:10.11
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE:      ${MYSQL_DATABASE}
+      MYSQL_USER:          ${MYSQL_USER}
+      MYSQL_PASSWORD:      ${MYSQL_PASSWORD}
+    command: ["mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+    volumes:
+      - ./data/db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+    networks: [appnet]
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --maxmemory 128mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+    networks: [appnet]
+
+  wordpress:
+    image: wordpress:6.5-php8.2-apache
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      WORDPRESS_DB_HOST:      db:3306
+      WORDPRESS_DB_USER:      ${MYSQL_USER}
+      WORDPRESS_DB_PASSWORD:  ${MYSQL_PASSWORD}
+      WORDPRESS_DB_NAME:      ${MYSQL_DATABASE}
+      WORDPRESS_TABLE_PREFIX: ${WORDPRESS_TABLE_PREFIX}
+      REVALIDATE_SECRET:      ${REVALIDATE_SECRET}
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_HOME',    'https://cms.kazu-test.com');
+        define('WP_SITEURL', 'https://cms.kazu-test.com');
+        define('WP_REDIS_HOST', 'redis');
+        define('WP_REDIS_PORT', 6379);
+    volumes:
+      - ./data/wp-content:/var/www/html/wp-content
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.wordpress.rule=Host(`cms.kazu-test.com`)"
+      - "traefik.http.routers.wordpress.entrypoints=websecure"
+      - "traefik.http.routers.wordpress.tls=true"
+      - "traefik.http.routers.wordpress.tls.certresolver=letsencrypt"
+      - "traefik.http.services.wordpress.loadbalancer.server.port=80"
+    restart: unless-stopped
+    networks: [appnet]
+
+  next:
+    build:
+      context: ./frontend
+      target: runner
+    environment:
+      WP_API_BASE_SERVER:   ${WP_API_BASE_SERVER}
+      WP_API_BASE_PUBLIC:   ${WP_API_BASE_PUBLIC}
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
+      REVALIDATE_SECRET:    ${REVALIDATE_SECRET}
+      NODE_ENV:             production
+      HOSTNAME:             "0.0.0.0"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O- http://0.0.0.0:3000/health >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.next.rule=Host(`www.kazu-test.com`)"
+      - "traefik.http.routers.next.entrypoints=websecure"
+      - "traefik.http.routers.next.tls=true"
+      - "traefik.http.routers.next.tls.certresolver=letsencrypt"
+      - "traefik.http.services.next.loadbalancer.server.port=3000"
+    restart: unless-stopped
+    networks: [appnet]
+
+  traefik:
+    image: traefik:v3
+    depends_on:
+      next:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik/traefik.prod.yml:/etc/traefik/traefik.yml:ro
+      - letsencrypt:/letsencrypt
+    restart: unless-stopped
+    networks: [appnet]
+
+networks:
+  appnet:
+
+volumes:
+  letsencrypt:
