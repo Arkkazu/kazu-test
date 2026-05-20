@@ -11,6 +11,7 @@
 | コンテナ管理 | Docker Compose（docker-compose.prod.yml） |
 | TLS 証明書 | Let's Encrypt（Traefik が自動取得・更新） |
 | SSH 鍵 | `~/.ssh/xvps`（ed25519） |
+| GitHub リポジトリ | https://github.com/taneArai/kazu-test |
 
 ### サービス構成
 
@@ -228,21 +229,21 @@ kazu-test2-traefik-1     Up
 
 ## 7. コードを更新した場合の再デプロイ
 
+GitHub 経由でデプロイする（推奨）。
+
 ```bash
-# ローカルで tar 圧縮
-cd /path/to/kazu-test2
-tar --exclude=frontend/node_modules --exclude=frontend/.next --exclude=data --exclude=certs \
-    -czf /tmp/kazu-test2.tar.gz docker-compose.prod.yml traefik frontend
+# 1. ローカルで変更をコミット・プッシュ
+git add .
+git commit -m "変更内容"
+git push origin main
 
-# 転送・展開
-scp -i ~/.ssh/xvps /tmp/kazu-test2.tar.gz root@85.131.248.47:/srv/kazu-test2/
+# 2. サーバーで pull してビルド
 ssh -i ~/.ssh/xvps root@85.131.248.47 \
-  "cd /srv/kazu-test2 && tar -xzf kazu-test2.tar.gz && rm kazu-test2.tar.gz"
-
-# ビルドして再起動（next のみ変更した場合）
-ssh -i ~/.ssh/xvps root@85.131.248.47 \
-  "cd /srv/kazu-test2 && docker compose -f docker-compose.prod.yml --env-file .env --env-file .env.local up -d --build next"
+  "cd /srv/kazu-test2 && git pull origin main && \
+   docker compose -f docker-compose.prod.yml --env-file .env --env-file .env.local up -d --build next"
 ```
+
+> **注意:** サーバー上の `.env`・`.env.local`・`data/` は git 管理外のため `git pull` しても上書きされない。
 
 ---
 
