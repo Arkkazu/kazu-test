@@ -35,6 +35,12 @@ export default async function AboutPage() {
         </div>
       )}
 
+      {page.about?.about && (
+        <p className="text-lg text-gray-700 leading-relaxed mb-10">
+          {page.about.about}
+        </p>
+      )}
+
       <div
         className="entry-content"
         dangerouslySetInnerHTML={{ __html: page.content || "" }}

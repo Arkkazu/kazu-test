@@ -46,6 +46,9 @@ export type Page = {
   date: string;
   modified?: string;
   content?: string;
+  about?: {
+    about?: string;
+  };
   featuredImage?: {
     node: {
       sourceUrl: string;

@@ -23,6 +23,9 @@ export const GET_PAGE_BY_SLUG = `
       date
       modified
       content
+      about {
+        about
+      }
       featuredImage {
         node {
           sourceUrl
