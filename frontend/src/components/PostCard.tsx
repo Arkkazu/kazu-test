@@ -24,7 +24,7 @@ export default function PostCard({ post, basePath = "/posts" }: { post: Item; ba
 
   return (
     <article className="group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-300">
-      <a href={href} className="block aspect-video bg-gray-100 overflow-hidden">
+      <a href={href} className="block aspect-video bg-gray-100 overflow-hidden" aria-label={post.title.replace(/<[^>]*>/g, "")} tabIndex={-1}>
         {post.featuredImage ? (
           <img
             src={post.featuredImage.node.sourceUrl}
