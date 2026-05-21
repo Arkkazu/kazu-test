@@ -66,6 +66,7 @@ export default function PostCard({ post, basePath = "/posts" }: { post: Item; ba
         <a
           href={href}
           className="inline-flex items-center gap-1 mt-4 text-sm font-medium text-blue-600 hover:text-blue-700"
+          aria-label={`${post.title.replace(/<[^>]*>/g, "")}を読む`}
         >
           続きを読む
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
