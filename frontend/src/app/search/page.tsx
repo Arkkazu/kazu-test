@@ -11,6 +11,7 @@ export async function generateMetadata({
   const { q } = await searchParams;
   return {
     title: q ? `「${q}」の検索結果 | My Blog` : "検索 | My Blog",
+    robots: { index: false, follow: false },
   };
 }
 

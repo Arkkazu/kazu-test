@@ -19,9 +19,27 @@ export async function generateMetadata({
   const { slug } = await params;
   const item = await getNewsBySlug(slug);
   if (!item) return {};
+  const plainTitle = item.title.replace(/<[^>]*>/g, "");
+  const plainDescription = item.excerpt?.replace(/<[^>]*>/g, "").slice(0, 160);
+  const ogImage = item.featuredImage?.node.sourceUrl;
   return {
-    title: `${item.title.replace(/<[^>]*>/g, "")} | お知らせ`,
-    description: item.excerpt?.replace(/<[^>]*>/g, "").slice(0, 160),
+    title: `${plainTitle} | お知らせ`,
+    description: plainDescription,
+    alternates: { canonical: `/news/${slug}` },
+    openGraph: {
+      title: plainTitle,
+      description: plainDescription,
+      url: `/news/${slug}`,
+      type: "article",
+      publishedTime: item.date,
+      ...(ogImage && { images: [{ url: ogImage }] }),
+    },
+    twitter: {
+      card: ogImage ? "summary_large_image" : "summary",
+      title: plainTitle,
+      description: plainDescription,
+      ...(ogImage && { images: [ogImage] }),
+    },
   };
 }
 

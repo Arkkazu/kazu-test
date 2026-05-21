@@ -15,8 +15,17 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.kazu-test.com"),
   title: "My Blog",
   description: "最新の記事・ニュース・情報をお届けします",
+  openGraph: {
+    siteName: "My Blog",
+    locale: "ja_JP",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
 };
 
 export default function RootLayout({

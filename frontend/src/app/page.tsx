@@ -1,7 +1,20 @@
 import { getPosts, getNews } from "@/lib/wordpress";
 import PostCard from "@/components/PostCard";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "My Blog",
+  description: "最新の記事・ニュース・情報をお届けします",
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: "My Blog",
+    description: "最新の記事・ニュース・情報をお届けします",
+    url: "/",
+    type: "website",
+  },
+};
 
 export default async function Home() {
   const [posts, newsItems] = await Promise.all([getPosts(9), getNews(6)]);

@@ -4,6 +4,13 @@ import ContactForm from "./ContactForm";
 export const metadata: Metadata = {
   title: "お問い合わせ | My Blog",
   description: "お問い合わせはこちらからお気軽にどうぞ。",
+  alternates: { canonical: "/contact" },
+  openGraph: {
+    title: "お問い合わせ | My Blog",
+    description: "お問い合わせはこちらからお気軽にどうぞ。",
+    url: "/contact",
+    type: "website",
+  },
 };
 
 export default function ContactPage() {

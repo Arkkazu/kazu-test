@@ -19,9 +19,27 @@ export async function generateMetadata({
   const { slug } = await params;
   const post = await getPostBySlug(slug);
   if (!post) return {};
+  const plainTitle = post.title.replace(/<[^>]*>/g, "");
+  const plainDescription = post.excerpt?.replace(/<[^>]*>/g, "").slice(0, 160);
+  const ogImage = post.featuredImage?.node.sourceUrl;
   return {
-    title: `${post.title.replace(/<[^>]*>/g, "")} | My Blog`,
-    description: post.excerpt?.replace(/<[^>]*>/g, "").slice(0, 160),
+    title: `${plainTitle} | My Blog`,
+    description: plainDescription,
+    alternates: { canonical: `/posts/${slug}` },
+    openGraph: {
+      title: plainTitle,
+      description: plainDescription,
+      url: `/posts/${slug}`,
+      type: "article",
+      publishedTime: post.date,
+      ...(ogImage && { images: [{ url: ogImage }] }),
+    },
+    twitter: {
+      card: ogImage ? "summary_large_image" : "summary",
+      title: plainTitle,
+      description: plainDescription,
+      ...(ogImage && { images: [ogImage] }),
+    },
   };
 }
 

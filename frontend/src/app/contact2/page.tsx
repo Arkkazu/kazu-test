@@ -2,8 +2,15 @@ import type { Metadata } from "next";
 import Contact2Form from "./Contact2Form";
 
 export const metadata: Metadata = {
-  title: "お問い合わせ | My Blog",
+  title: "お問い合わせ (2) | My Blog",
   description: "お問い合わせはこちらからお気軽にどうぞ。",
+  alternates: { canonical: "/contact" },
+  openGraph: {
+    title: "お問い合わせ | My Blog",
+    description: "お問い合わせはこちらからお気軽にどうぞ。",
+    url: "/contact",
+    type: "website",
+  },
 };
 
 export default function Contact2Page() {

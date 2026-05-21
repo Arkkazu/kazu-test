@@ -7,6 +7,13 @@ export const dynamic = "force-dynamic";
 export const metadata = {
   title: "お知らせ | My Blog",
   description: "お知らせの一覧です。",
+  alternates: { canonical: "/news" },
+  openGraph: {
+    title: "お知らせ | My Blog",
+    description: "お知らせの一覧です。",
+    url: "/news",
+    type: "website",
+  },
 };
 
 const PER_PAGE = 9;

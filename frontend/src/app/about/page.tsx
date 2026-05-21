@@ -7,6 +7,13 @@ export const dynamic = "force-dynamic";
 export const metadata = {
   title: "About | My Blog",
   description: "このサイトについて",
+  alternates: { canonical: "/about" },
+  openGraph: {
+    title: "About | My Blog",
+    description: "このサイトについて",
+    url: "/about",
+    type: "website",
+  },
 };
 
 export default async function AboutPage() {
