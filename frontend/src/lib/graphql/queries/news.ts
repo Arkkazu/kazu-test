@@ -46,3 +46,15 @@ export const GET_ALL_NEWS_SLUGS = `
     }
   }
 `;
+
+export const GET_ALL_NEWS_FOR_NAVIGATION = `
+  query GetAllNewsForNavigation {
+    allNews(first: 100) {
+      nodes {
+        slug
+        title
+        date
+      }
+    }
+  }
+`;

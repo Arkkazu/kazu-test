@@ -71,6 +71,10 @@ services:
       REVALIDATE_SECRET:    ${REVALIDATE_SECRET}
       NODE_ENV:             ${NODE_ENV}
       WATCHPACK_POLLING:    "500"
+      REDIS_URL:            ${REDIS_URL}
+      RESEND_API_KEY:       ${RESEND_API_KEY}
+      CONTACT_MAIL_TO:      ${CONTACT_MAIL_TO}
+      CONTACT_MAIL_FROM:    ${CONTACT_MAIL_FROM}
     volumes:
       - ./frontend:/app
       - /app/node_modules

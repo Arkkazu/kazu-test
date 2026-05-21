@@ -13,6 +13,7 @@ import {
   GET_NEWS,
   GET_NEWS_BY_SLUG,
   GET_ALL_NEWS_SLUGS,
+  GET_ALL_NEWS_FOR_NAVIGATION,
 } from "./graphql/queries/news";
 
 // --- 型定義 ---
@@ -90,6 +91,12 @@ type PageSlugsResponse = { pages: { nodes: { slug: string }[] } };
 type NewsResponse = { allNews: { nodes: NewsItem[] } };
 type NewsItemResponse = { newsBy: NewsItem | null };
 type NewsSlugsResponse = { allNews: { nodes: { slug: string }[] } };
+type NewsNavResponse = { allNews: { nodes: { slug: string; title: string; date: string }[] } };
+
+export type AdjacentNews = {
+  prev: { slug: string; title: string } | null;
+  next: { slug: string; title: string } | null;
+};
 
 // --- 投稿 ---
 
@@ -167,6 +174,22 @@ export async function getNewsBySlug(slug: string): Promise<NewsItem | null> {
     { tags: ["wp-news", `wp-news-${slug}`] }
   );
   return data.newsBy;
+}
+
+export async function getAdjacentNews(currentSlug: string): Promise<AdjacentNews> {
+  const data = await fetchGraphQL<NewsNavResponse>(
+    GET_ALL_NEWS_FOR_NAVIGATION,
+    {},
+    { tags: ["wp-news"] }
+  );
+  // WPGraphQL はデフォルトで日付降順（新しい順）で返す
+  // index が小さいほど新しい記事、大きいほど古い記事
+  const nodes = data.allNews.nodes;
+  const index = nodes.findIndex((n) => n.slug === currentSlug);
+  return {
+    prev: index < nodes.length - 1 ? nodes[index + 1] : null, // 古い記事（前の記事）
+    next: index > 0 ? nodes[index - 1] : null,                 // 新しい記事（次の記事）
+  };
 }
 
 export async function getAllNewsSlugs(): Promise<string[]> {
