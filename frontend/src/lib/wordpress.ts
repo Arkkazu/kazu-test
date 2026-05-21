@@ -15,6 +15,7 @@ import {
   GET_ALL_NEWS_SLUGS,
   GET_ALL_NEWS_FOR_NAVIGATION,
 } from "./graphql/queries/news";
+import { SEARCH_CONTENT } from "./graphql/queries/search";
 
 // --- 型定義 ---
 
@@ -96,6 +97,14 @@ type NewsNavResponse = { allNews: { nodes: { slug: string; title: string; date: 
 export type AdjacentNews = {
   prev: { slug: string; title: string } | null;
   next: { slug: string; title: string } | null;
+};
+
+export type SearchResult = {
+  type: "post" | "news";
+  title: string;
+  slug: string;
+  date: string;
+  excerpt?: string;
 };
 
 // --- 投稿 ---
@@ -190,6 +199,25 @@ export async function getAdjacentNews(currentSlug: string): Promise<AdjacentNews
     prev: index < nodes.length - 1 ? nodes[index + 1] : null, // 古い記事（前の記事）
     next: index > 0 ? nodes[index - 1] : null,                 // 新しい記事（次の記事）
   };
+}
+
+type SearchResponse = {
+  posts: { nodes: { title: string; slug: string; date: string; excerpt: string }[] };
+  allNews: { nodes: { title: string; slug: string; date: string; excerpt?: string }[] };
+};
+
+export async function searchContent(query: string): Promise<SearchResult[]> {
+  if (!query.trim()) return [];
+  const data = await fetchGraphQL<SearchResponse>(
+    SEARCH_CONTENT,
+    { search: query },
+    { revalidate: 0 }
+  );
+  const posts = data.posts.nodes.map((n) => ({ ...n, type: "post" as const }));
+  const news = data.allNews.nodes.map((n) => ({ ...n, type: "news" as const }));
+  return [...posts, ...news].sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
 }
 
 export async function getAllNewsSlugs(): Promise<string[]> {
