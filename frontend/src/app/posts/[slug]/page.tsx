@@ -30,6 +30,8 @@ export async function generateMetadata({
     description: plainDescription,
     alternates: { canonical: `/posts/${slug}` },
     openGraph: {
+      siteName: "My Blog",
+      locale: "ja_JP",
       title: plainTitle,
       description: plainDescription,
       url: `/posts/${slug}`,

@@ -9,6 +9,8 @@ export const metadata: Metadata = {
   description: "最新の記事・ニュース・情報をお届けします",
   alternates: { canonical: "/" },
   openGraph: {
+    siteName: "My Blog",
+    locale: "ja_JP",
     title: "My Blog",
     description: "最新の記事・ニュース・情報をお届けします",
     url: "/",
