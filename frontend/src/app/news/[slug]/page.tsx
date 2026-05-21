@@ -20,9 +20,10 @@ export async function generateMetadata({
   const item = await getNewsBySlug(slug);
   if (!item) return {};
   const plainTitle = item.title.replace(/<[^>]*>/g, "");
+  const toPlain = (html?: string | null) =>
+    html?.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 160) ?? "";
   const plainDescription =
-    item.excerpt?.replace(/<[^>]*>/g, "").slice(0, 160) ||
-    item.content?.replace(/<[^>]*>/g, "").slice(0, 160);
+    toPlain(item.excerpt) || toPlain(item.content);
   const ogImage = item.featuredImage?.node.sourceUrl;
   return {
     title: `${plainTitle} | お知らせ`,
