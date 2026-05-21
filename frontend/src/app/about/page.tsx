@@ -1,5 +1,6 @@
 import { getPageBySlug } from "@/lib/wordpress";
 import { notFound } from "next/navigation";
+import "@/app/entry-content.css";
 
 export const dynamic = "force-dynamic";
 

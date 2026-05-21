@@ -1,5 +1,6 @@
 import { getNewsBySlug, getAllNewsSlugs, getAdjacentNews } from "@/lib/wordpress";
 import { notFound } from "next/navigation";
+import "@/app/entry-content.css";
 
 export async function generateStaticParams() {
   try {
