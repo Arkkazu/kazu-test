@@ -50,7 +50,7 @@ export default function PostCard({ post, basePath = "/posts" }: { post: Item; ba
             className="text-lg font-bold leading-snug mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors"
             dangerouslySetInnerHTML={{ __html: post.title }}
           />
-          <time className="text-xs text-gray-500">{formatDate(post.date)}</time>
+          <time dateTime={post.date} className="text-xs text-gray-500">{formatDate(post.date)}</time>
           {post.excerpt ? (
             <div
               className="mt-2 text-sm text-gray-600 line-clamp-3 leading-relaxed"

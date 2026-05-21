@@ -63,7 +63,7 @@ export default async function NewsPage({
       />
 
       <div className="text-sm text-gray-500 mb-8 pb-8 border-b border-gray-200">
-        <time>{formatDate(item.date)}</time>
+        <time dateTime={item.date}>{formatDate(item.date)}</time>
       </div>
 
       {item.featuredImage && (

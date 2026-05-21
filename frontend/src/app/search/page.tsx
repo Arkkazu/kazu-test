@@ -85,7 +85,7 @@ export default async function SearchPage({
                   >
                     {item.type === "news" ? "お知らせ" : "ブログ"}
                   </span>
-                  <time className="text-xs text-gray-400">{formatDate(item.date)}</time>
+                  <time dateTime={item.date} className="text-xs text-gray-400">{formatDate(item.date)}</time>
                 </div>
                 <h2
                   className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors mb-1"

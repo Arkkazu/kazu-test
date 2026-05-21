@@ -74,7 +74,7 @@ export default async function PostPage({
       />
 
       <div className="flex items-center gap-4 text-sm text-gray-500 mb-8 pb-8 border-b border-gray-200">
-        <time>{formatDate(post.date)}</time>
+        <time dateTime={post.date}>{formatDate(post.date)}</time>
         {post.author?.node.name && (
           <>
             <span>·</span>
