@@ -20,7 +20,9 @@ export async function generateMetadata({
   const post = await getPostBySlug(slug);
   if (!post) return {};
   const plainTitle = post.title.replace(/<[^>]*>/g, "");
-  const plainDescription = post.excerpt?.replace(/<[^>]*>/g, "").slice(0, 160);
+  const plainDescription =
+    post.excerpt?.replace(/<[^>]*>/g, "").slice(0, 160) ||
+    post.content?.replace(/<[^>]*>/g, "").slice(0, 160);
   const ogImage = post.featuredImage?.node.sourceUrl;
   return {
     title: `${plainTitle} | My Blog`,
