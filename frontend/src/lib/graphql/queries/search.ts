@@ -13,7 +13,6 @@ export const SEARCH_CONTENT = `
         title
         slug
         date
-        excerpt
       }
     }
   }

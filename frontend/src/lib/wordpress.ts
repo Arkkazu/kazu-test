@@ -203,7 +203,7 @@ export async function getAdjacentNews(currentSlug: string): Promise<AdjacentNews
 
 type SearchResponse = {
   posts: { nodes: { title: string; slug: string; date: string; excerpt: string }[] };
-  allNews: { nodes: { title: string; slug: string; date: string; excerpt?: string }[] };
+  allNews: { nodes: { title: string; slug: string; date: string }[] };
 };
 
 export async function searchContent(query: string): Promise<SearchResult[]> {
