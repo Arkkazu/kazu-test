@@ -52,7 +52,7 @@ export default function PostCard({ post, basePath = "/posts" }: { post: Item; ba
             dangerouslySetInnerHTML={{ __html: post.title }}
           />
         </h2>
-        <time className="text-xs text-gray-400">{formatDate(post.date)}</time>
+        <time className="text-xs text-gray-500">{formatDate(post.date)}</time>
         {post.excerpt ? (
           <div
             className="mt-2 text-sm text-gray-600 line-clamp-3 leading-relaxed"
