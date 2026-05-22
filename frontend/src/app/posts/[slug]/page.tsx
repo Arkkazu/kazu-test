@@ -1,6 +1,7 @@
 import { getPostBySlug, getAllPostSlugs } from "@/lib/wordpress";
 import { notFound } from "next/navigation";
 import "@/app/entry-content.css";
+import { SITE_URL } from "@/lib/constants";
 
 export async function generateStaticParams() {
   try {
@@ -65,8 +66,31 @@ export default async function PostPage({
   const post = await getPostBySlug(slug);
   if (!post) notFound();
 
+  const plainTitle = post.title.replace(/<[^>]*>/g, "");
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: plainTitle,
+    datePublished: post.date,
+    ...(post.modified && { dateModified: post.modified }),
+    ...(post.featuredImage && { image: post.featuredImage.node.sourceUrl }),
+    ...(post.author?.node.name && { author: { "@type": "Person", name: post.author.node.name } }),
+    publisher: { "@type": "Organization", name: "My Blog", url: SITE_URL },
+    url: `${SITE_URL}/posts/${slug}`,
+  };
+  const breadcrumb = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "ホーム", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: plainTitle, item: `${SITE_URL}/posts/${slug}` },
+    ],
+  };
+
   return (
     <div className="max-w-3xl mx-auto px-6 py-16">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }} />
       <nav className="text-sm text-gray-500 mb-8 flex items-center gap-2">
         <a href="/" className="hover:text-gray-900 transition-colors">
           ホーム

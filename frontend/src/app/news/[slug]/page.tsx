@@ -1,6 +1,7 @@
 import { getNewsBySlug, getAllNewsSlugs, getAdjacentNews } from "@/lib/wordpress";
 import { notFound } from "next/navigation";
 import "@/app/entry-content.css";
+import { SITE_URL } from "@/lib/constants";
 
 export async function generateStaticParams() {
   try {
@@ -68,8 +69,31 @@ export default async function NewsPage({
   ]);
   if (!item) notFound();
 
+  const plainTitle = item.title.replace(/<[^>]*>/g, "");
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    headline: plainTitle,
+    datePublished: item.date,
+    ...(item.modified && { dateModified: item.modified }),
+    ...(item.featuredImage && { image: item.featuredImage.node.sourceUrl }),
+    publisher: { "@type": "Organization", name: "My Blog", url: SITE_URL },
+    url: `${SITE_URL}/news/${slug}`,
+  };
+  const breadcrumb = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "ホーム", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "お知らせ", item: `${SITE_URL}/news` },
+      { "@type": "ListItem", position: 3, name: plainTitle, item: `${SITE_URL}/news/${slug}` },
+    ],
+  };
+
   return (
     <div className="max-w-3xl mx-auto px-6 py-16">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }} />
       <nav className="text-sm text-gray-500 mb-8 flex items-center gap-2">
         <a href="/" className="hover:text-gray-900 transition-colors">ホーム</a>
         <span>›</span>

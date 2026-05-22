@@ -1,6 +1,7 @@
 import { getPosts, getNews } from "@/lib/wordpress";
 import PostCard from "@/components/PostCard";
 import type { Metadata } from "next";
+import { SITE_URL } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
 
@@ -21,8 +22,16 @@ export const metadata: Metadata = {
 export default async function Home() {
   const [posts, newsItems] = await Promise.all([getPosts(9), getNews(6)]);
 
+  const websiteSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "My Blog",
+    url: SITE_URL,
+  };
+
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} />
       <section className="bg-gradient-to-b from-gray-50 to-white border-b border-gray-200 py-24 px-6">
         <div className="max-w-3xl mx-auto text-center">
           <h1 className="text-5xl font-extrabold tracking-tight text-gray-900 mb-6">Welcome to My Blog</h1>
