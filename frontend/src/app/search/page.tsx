@@ -1,5 +1,7 @@
 import { searchContent } from "@/lib/wordpress";
 import type { Metadata } from "next";
+import { formatDate } from "@/lib/utils";
+import Breadcrumb from "@/components/Breadcrumb";
 
 export const dynamic = "force-dynamic";
 
@@ -16,14 +18,6 @@ export async function generateMetadata({
   };
 }
 
-function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString("ja-JP", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-}
-
 export default async function SearchPage({
   searchParams,
 }: {
@@ -35,11 +29,7 @@ export default async function SearchPage({
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-16">
-      <nav className="text-sm text-gray-500 mb-8 flex items-center gap-2">
-        <a href="/" className="hover:text-gray-900 transition-colors">ホーム</a>
-        <span>›</span>
-        <span className="text-gray-900">検索</span>
-      </nav>
+      <Breadcrumb items={[{ name: "ホーム", href: "/" }, { name: "検索" }]} />
 
       <h1 className="text-4xl font-extrabold tracking-tight leading-tight mb-8">
         検索

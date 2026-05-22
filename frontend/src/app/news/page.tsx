@@ -1,34 +1,14 @@
 import { getNews } from "@/lib/wordpress";
 import PostCard from "@/components/PostCard";
 import Link from "next/link";
-import { SITE_URL } from "@/lib/constants";
+import { buildMetadata } from "@/lib/metadata";
+import Breadcrumb from "@/components/Breadcrumb";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = {
-  title: "お知らせ | My Blog",
-  description: "お知らせの一覧です。",
-  alternates: { canonical: "/news" },
-  openGraph: {
-    siteName: "My Blog",
-    locale: "ja_JP",
-    title: "お知らせ | My Blog",
-    description: "お知らせの一覧です。",
-    url: "/news",
-    type: "website",
-  },
-};
+export const metadata = buildMetadata("お知らせ | My Blog", "お知らせの一覧です。", "/news");
 
 const PER_PAGE = 9;
-
-const breadcrumb = {
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  itemListElement: [
-    { "@type": "ListItem", position: 1, name: "ホーム", item: SITE_URL },
-    { "@type": "ListItem", position: 2, name: "お知らせ", item: `${SITE_URL}/news` },
-  ],
-};
 
 export default async function NewsListPage({
   searchParams,
@@ -44,14 +24,12 @@ export default async function NewsListPage({
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }} />
       <section className="bg-gradient-to-b from-gray-50 to-white border-b border-gray-200 py-16 px-6">
         <div className="max-w-3xl mx-auto">
-          <nav className="text-sm text-gray-500 mb-4 flex items-center gap-2">
-            <a href="/" className="hover:text-gray-900 transition-colors">ホーム</a>
-            <span>›</span>
-            <span className="text-gray-900">お知らせ</span>
-          </nav>
+          <Breadcrumb
+            items={[{ name: "ホーム", href: "/" }, { name: "お知らせ" }]}
+            className="mb-4"
+          />
           <h1 className="text-4xl font-extrabold tracking-tight text-gray-900">お知らせ</h1>
         </div>
       </section>

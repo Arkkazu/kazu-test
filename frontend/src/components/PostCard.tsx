@@ -1,4 +1,5 @@
 import type { Post, NewsItem } from "@/lib/wordpress";
+import { formatDate, stripHtml } from "@/lib/utils";
 
 type Item = Pick<Post | NewsItem, "id" | "title" | "slug" | "date" | "featuredImage"> & {
   excerpt?: string;
@@ -6,21 +7,9 @@ type Item = Pick<Post | NewsItem, "id" | "title" | "slug" | "date" | "featuredIm
   categories?: { nodes: { name: string; slug: string }[] };
 };
 
-function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString("ja-JP", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-}
-
-function toPlainText(html: string, maxLength = 120): string {
-  return html.replace(/<[^>]*>/g, "").slice(0, maxLength);
-}
-
 export default function PostCard({ post, basePath = "/posts" }: { post: Item; basePath?: string }) {
   const href = `${basePath}/${post.slug}`;
-  const plainSummary = !post.excerpt && post.content ? toPlainText(post.content) : null;
+  const plainSummary = !post.excerpt && post.content ? stripHtml(post.content, 120) : null;
 
   return (
     <article className="group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-300">

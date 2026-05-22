@@ -2,6 +2,9 @@ import { getNewsBySlug, getAllNewsSlugs, getAdjacentNews } from "@/lib/wordpress
 import { notFound } from "next/navigation";
 import "@/app/entry-content.css";
 import { SITE_URL } from "@/lib/constants";
+import { formatDate, stripHtml } from "@/lib/utils";
+import { buildArticleMetadata } from "@/lib/metadata";
+import Breadcrumb from "@/components/Breadcrumb";
 
 export async function generateStaticParams() {
   try {
@@ -21,39 +24,11 @@ export async function generateMetadata({
   const item = await getNewsBySlug(slug);
   if (!item) return {};
   const plainTitle = item.title.replace(/<[^>]*>/g, "");
-  const toPlain = (html?: string | null) =>
-    html?.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 160) ?? "";
   const plainDescription =
-    toPlain(item.excerpt) || toPlain(item.content);
-  const ogImage = item.featuredImage?.node.sourceUrl;
-  return {
-    title: `${plainTitle} | お知らせ`,
-    description: plainDescription,
-    alternates: { canonical: `/news/${slug}` },
-    openGraph: {
-      siteName: "My Blog",
-      locale: "ja_JP",
-      title: plainTitle,
-      description: plainDescription,
-      url: `/news/${slug}`,
-      type: "article",
-      publishedTime: item.date,
-      ...(ogImage && { images: [{ url: ogImage }] }),
-    },
-    twitter: {
-      card: ogImage ? "summary_large_image" : "summary",
-      title: plainTitle,
-      description: plainDescription,
-      ...(ogImage && { images: [ogImage] }),
-    },
-  };
-}
-
-function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString("ja-JP", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
+    stripHtml(item.excerpt) || stripHtml(item.content) || undefined;
+  return buildArticleMetadata(plainTitle, "お知らせ", plainDescription, `/news/${slug}`, {
+    image: item.featuredImage?.node.sourceUrl,
+    publishedTime: item.date,
   });
 }
 
@@ -80,27 +55,15 @@ export default async function NewsPage({
     publisher: { "@type": "Organization", name: "My Blog", url: SITE_URL },
     url: `${SITE_URL}/news/${slug}`,
   };
-  const breadcrumb = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      { "@type": "ListItem", position: 1, name: "ホーム", item: SITE_URL },
-      { "@type": "ListItem", position: 2, name: "お知らせ", item: `${SITE_URL}/news` },
-      { "@type": "ListItem", position: 3, name: plainTitle, item: `${SITE_URL}/news/${slug}` },
-    ],
-  };
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-16">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }} />
-      <nav className="text-sm text-gray-500 mb-8 flex items-center gap-2">
-        <a href="/" className="hover:text-gray-900 transition-colors">ホーム</a>
-        <span>›</span>
-        <a href="/news" className="hover:text-gray-900 transition-colors">お知らせ</a>
-        <span>›</span>
-        <span className="text-gray-900 truncate" dangerouslySetInnerHTML={{ __html: item.title }} />
-      </nav>
+      <Breadcrumb items={[
+        { name: "ホーム", href: "/" },
+        { name: "お知らせ", href: "/news" },
+        { name: plainTitle },
+      ]} />
 
       <p className="text-sm font-semibold text-blue-600 mb-2">お知らせ</p>
 

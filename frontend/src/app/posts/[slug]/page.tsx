@@ -2,6 +2,9 @@ import { getPostBySlug, getAllPostSlugs } from "@/lib/wordpress";
 import { notFound } from "next/navigation";
 import "@/app/entry-content.css";
 import { SITE_URL } from "@/lib/constants";
+import { formatDate, stripHtml } from "@/lib/utils";
+import { buildArticleMetadata } from "@/lib/metadata";
+import Breadcrumb from "@/components/Breadcrumb";
 
 export async function generateStaticParams() {
   try {
@@ -21,39 +24,11 @@ export async function generateMetadata({
   const post = await getPostBySlug(slug);
   if (!post) return {};
   const plainTitle = post.title.replace(/<[^>]*>/g, "");
-  const toPlain = (html?: string | null) =>
-    html?.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 160) ?? "";
   const plainDescription =
-    toPlain(post.excerpt) || toPlain(post.content);
-  const ogImage = post.featuredImage?.node.sourceUrl;
-  return {
-    title: `${plainTitle} | My Blog`,
-    description: plainDescription,
-    alternates: { canonical: `/posts/${slug}` },
-    openGraph: {
-      siteName: "My Blog",
-      locale: "ja_JP",
-      title: plainTitle,
-      description: plainDescription,
-      url: `/posts/${slug}`,
-      type: "article",
-      publishedTime: post.date,
-      ...(ogImage && { images: [{ url: ogImage }] }),
-    },
-    twitter: {
-      card: ogImage ? "summary_large_image" : "summary",
-      title: plainTitle,
-      description: plainDescription,
-      ...(ogImage && { images: [ogImage] }),
-    },
-  };
-}
-
-function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString("ja-JP", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
+    stripHtml(post.excerpt) || stripHtml(post.content) || undefined;
+  return buildArticleMetadata(plainTitle, "My Blog", plainDescription, `/posts/${slug}`, {
+    image: post.featuredImage?.node.sourceUrl,
+    publishedTime: post.date,
   });
 }
 
@@ -78,29 +53,14 @@ export default async function PostPage({
     publisher: { "@type": "Organization", name: "My Blog", url: SITE_URL },
     url: `${SITE_URL}/posts/${slug}`,
   };
-  const breadcrumb = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      { "@type": "ListItem", position: 1, name: "ホーム", item: SITE_URL },
-      { "@type": "ListItem", position: 2, name: plainTitle, item: `${SITE_URL}/posts/${slug}` },
-    ],
-  };
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-16">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }} />
-      <nav className="text-sm text-gray-500 mb-8 flex items-center gap-2">
-        <a href="/" className="hover:text-gray-900 transition-colors">
-          ホーム
-        </a>
-        <span>›</span>
-        <span
-          className="text-gray-900 truncate"
-          dangerouslySetInnerHTML={{ __html: post.title }}
-        />
-      </nav>
+      <Breadcrumb items={[
+        { name: "ホーム", href: "/" },
+        { name: plainTitle },
+      ]} />
 
       {post.categories && post.categories.nodes.length > 0 && (
         <div className="flex gap-2 mb-4">
